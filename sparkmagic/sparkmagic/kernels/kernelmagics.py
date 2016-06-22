@@ -60,11 +60,11 @@ class KernelMagics(SparkMagicBase):
         self._spark_events = spark_events
         
     @property
-    def current_session_id():
+    def current_session_id(self):
         if self.session_started:
             return self.spark_controller.get_session_id_for_client(self.session_name)
         else:
-            return
+            return "-1"
 
     @magic_arguments()
     @cell_magic

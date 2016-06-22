@@ -105,7 +105,8 @@ ip.display_formatter.ipython_display_formatter.for_type_by_name('pandas.core.fra
         
     def _session_id(self):
         code = "%%_do_not_call_session_id\n "
-        reply_content = self._execute_cell_for_user(code, True, False)
+        reply_content = self._execute_cell_for_user(code, False, False)
+        self.logger.debug(reply_content)
         return reply_content
 
     def _execute_cell(self, code, silent, store_history=True, user_expressions=None, allow_stdin=False,
