@@ -43,6 +43,14 @@ class SparkKernelBase(IPythonKernel):
             self._change_language()
             if conf.use_auto_viz():
                 self._register_auto_viz()
+                
+    @property
+    def kernel_info(self):
+        orig_d = super(SparkKernelBase, self).kernel_info
+        
+        orig_d['livy_session_id'] = self._session_id()
+        
+        return orig_d
 
     def do_execute(self, code, silent, store_history=True, user_expressions=None, allow_stdin=False):
         def f(self):
@@ -94,6 +102,11 @@ ip.display_formatter.ipython_display_formatter.for_type_by_name('pandas.core.fra
     def _delete_session(self):
         code = "%%_do_not_call_delete_session\n "
         self._execute_cell_for_user(code, True, False)
+        
+    def _session_id(self):
+        code = "%%_do_not_call_session_id\n "
+        reply_content = self._execute_cell_for_user(code, True, False)
+        return reply_content
 
     def _execute_cell(self, code, silent, store_history=True, user_expressions=None, allow_stdin=False,
                       shutdown_if_error=False, log_if_error=None):

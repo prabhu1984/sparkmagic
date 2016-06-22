@@ -58,6 +58,13 @@ class KernelMagics(SparkMagicBase):
         if spark_events is None:
             spark_events = SparkEvents()
         self._spark_events = spark_events
+        
+    @property
+    def current_session_id():
+        if self.session_started:
+            return self.spark_controller.get_session_id_for_client(self.session_name)
+        else:
+            return
 
     @magic_arguments()
     @cell_magic
@@ -139,15 +146,11 @@ class KernelMagics(SparkMagicBase):
     def info(self, line, cell=u"", local_ns=None):
         parse_argstring_or_throw(self.info, line)
         self._assure_cell_body_is_empty(KernelMagics.info.__name__, cell)
-        if self.session_started:
-            current_session_id = self.spark_controller.get_session_id_for_client(self.session_name)
-        else:
-            current_session_id = None
 
         self.ipython_display.html(u"Current session configs: <tt>{}</tt><br>".format(conf.get_session_properties(self.language)))
 
         info_sessions = self.spark_controller.get_all_sessions_endpoint(self.endpoint)
-        self._print_endpoint_info(info_sessions, current_session_id)
+        self._print_endpoint_info(info_sessions, self.current_session_id)
 
     @magic_arguments()
     @cell_magic
@@ -310,6 +313,13 @@ class KernelMagics(SparkMagicBase):
             raise
         finally:
             self.session_started = False
+            
+            
+    @cell_magic
+    @handle_expected_exceptions
+    def _do_not_call_session_id(self, line, cell="", local_ns=None):
+        return self.current_session_id
+            
 
     @magic_arguments()
     @cell_magic
